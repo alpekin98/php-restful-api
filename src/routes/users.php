@@ -5,8 +5,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 $app = new \Slim\App;
 
 /*
-** Endpoint for getting all user informations.
-*/
+ ** Endpoint for getting all user informations.
+ */
 
 $app->get('/users', function (Request $request, Response $response) {
 
@@ -24,7 +24,7 @@ $app->get('/users', function (Request $request, Response $response) {
             ->withJson($users);
 
     } catch (PDOException $e) {
-        return $response->withJson(
+        return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
             array(
                 "error" => array(
                     "message" => $e->getMessage(),
@@ -37,8 +37,8 @@ $app->get('/users', function (Request $request, Response $response) {
 });
 
 /*
-** Endpoint for register user.
-*/
+ ** Endpoint for register user.
+ */
 
 $app->post('/users/register', function (Request $request, Response $response) {
 
@@ -61,7 +61,7 @@ $app->post('/users/register', function (Request $request, Response $response) {
             ->withJson("Operation completed!");
 
     } catch (PDOException $e) {
-        return $response->withJson(
+        return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
             array(
                 "error" => array(
                     "message" => $e->getMessage(),
@@ -74,8 +74,8 @@ $app->post('/users/register', function (Request $request, Response $response) {
 });
 
 /*
-** Endpoint for login auth.
-*/
+ ** Endpoint for login auth.
+ */
 
 $app->post('/users/login', function (Request $request, Response $response) {
 
@@ -92,21 +92,18 @@ $app->post('/users/login', function (Request $request, Response $response) {
         $query->execute([':email' => $email, ':password' => $password]);
         $rowCount = $query->rowCount();
 
-        if($rowCount > 0) {
-            
+        if ($rowCount > 0) {
+
             $fetchUserData = $query->fetch(PDO::FETCH_OBJ);
 
-            return $response
-            ->withStatus(200)
-            ->withHeader("Content-Type", "application/json")
-            ->withJson($fetchUserData);
+            return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson($fetchUserData);
 
         } else {
             throw new PDOException("Username or password wrong!", 400);
         }
 
     } catch (PDOException $e) {
-        return $response->withJson(
+        return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
             array(
                 "error" => array(
                     "message" => $e->getMessage(),
