@@ -50,6 +50,7 @@ $app->post('/users/register', function (Request $request, Response $response) {
     $username = $request->getParam('username');
     $email = $request->getParam('email');
     $password = $request->getParam('password');
+    $fullname = $request->getParam('fullname');
 
     $db = new Db();
 
@@ -57,13 +58,13 @@ $app->post('/users/register', function (Request $request, Response $response) {
 
         $db = $db->connect();
 
-        $query = $db->prepare("INSERT INTO users(username,email,password) VALUES(?,?,?)");
-        $query->execute([$username, $email, $password]);
+        $query = $db->prepare("INSERT INTO users(username,email,password,fullname) VALUES(?,?,?,?)");
+        $query->execute([$username, $email, $password, $fullname]);
 
         return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
             array(
                 "data" => array(
-                    "message" => "Operation completed!",
+                    "message" => "Registiration completed!",
                     "success" => true
                 ),
             )
