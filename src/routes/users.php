@@ -18,17 +18,22 @@ $app->get('/users', function (Request $request, Response $response) {
 
         $users = $db->query("SELECT * FROM users")->fetchAll(PDO::FETCH_OBJ);
 
-        return $response
-            ->withStatus(200)
-            ->withHeader("Content-Type", "application/json")
-            ->withJson($users);
+        return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+            array(
+                "data" => array(
+                    "message" => "Operation completed!",
+                    "success" => true,
+                    "data" => $users
+                ),
+            )
+        );
 
     } catch (PDOException $e) {
         return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
             array(
                 "error" => array(
                     "message" => $e->getMessage(),
-                    "code" => $e->getCode(),
+                    "success" => $e->getCode()
                 ),
             )
         );
@@ -55,17 +60,21 @@ $app->post('/users/register', function (Request $request, Response $response) {
         $query = $db->prepare("INSERT INTO users(username,email,password) VALUES(?,?,?)");
         $query->execute([$username, $email, $password]);
 
-        return $response
-            ->withStatus(200)
-            ->withHeader("Content-Type", "application/json")
-            ->withJson("Operation completed!");
+        return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+            array(
+                "data" => array(
+                    "message" => "Operation completed!",
+                    "success" => true
+                ),
+            )
+        );
 
     } catch (PDOException $e) {
         return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
             array(
                 "error" => array(
                     "message" => $e->getMessage(),
-                    "code" => $e->getCode(),
+                    "success" => $e->getCode()
                 ),
             )
         );
@@ -96,10 +105,27 @@ $app->post('/users/login', function (Request $request, Response $response) {
 
             $fetchUserData = $query->fetch(PDO::FETCH_OBJ);
 
-            return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson($fetchUserData);
+            return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "data" => array(
+                        "message" => "Operation completed!",
+                        "success" => true,
+                        "data" => $fetchUserData
+                    ),
+                )
+            );
 
         } else {
-            throw new PDOException("Username or password wrong!", 400);
+            
+            return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "data" => array(
+                        "message" => "Username and password does not match!!",
+                        "success" => false,
+                        "data" => $fetchUserData
+                    ),
+                )
+            );
         }
 
     } catch (PDOException $e) {
@@ -107,7 +133,7 @@ $app->post('/users/login', function (Request $request, Response $response) {
             array(
                 "error" => array(
                     "message" => $e->getMessage(),
-                    "code" => $e->getCode(),
+                    "success" => $e->getCode()
                 ),
             )
         );
