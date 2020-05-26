@@ -56,7 +56,7 @@ $app->post('/pairs/check', function (Request $request, Response $response) {
 
         $db = $db->connect();
 
-        $query = $db->prepare("SELECT * FROM `pairs` WHERE receiver_token = :authToken");
+        $query = $db->prepare("SELECT * FROM `pairs` WHERE receiver_token = :authToken AND `status` = 0");
         $query->execute([':authToken' => $authToken]);
         $rowCount = $query->rowCount();
 
