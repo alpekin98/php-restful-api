@@ -6,6 +6,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  ** Endpoint for getting all user informations.
  */
 
+function createToken(){
+    $string = substr(str_shuffle(MD5(microtime())), 0, 20);
+    return $string;
+}
+
 $app->get('/users', function (Request $request, Response $response) {
 
     $db = new Db();
@@ -49,6 +54,7 @@ $app->post('/users/register', function (Request $request, Response $response) {
     $email = $request->getParam('email');
     $password = $request->getParam('password');
     $fullname = $request->getParam('fullname');
+    $authtoken = createToken();
 
     $db = new Db();
 
@@ -56,8 +62,8 @@ $app->post('/users/register', function (Request $request, Response $response) {
 
         $db = $db->connect();
 
-        $query = $db->prepare("INSERT INTO users(username,email,password,fullname) VALUES(?,?,?,?)");
-        $query->execute([$username, $email, $password, $fullname]);
+        $query = $db->prepare("INSERT INTO users(username,email,password,fullname,authtoken) VALUES(?,?,?,?,?)");
+        $query->execute([$username, $email, $password, $fullname, $authtoken]);
 
         return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
             array(
@@ -127,6 +133,40 @@ $app->post('/users/login', function (Request $request, Response $response) {
             );
         }
 
+    } catch (PDOException $e) {
+        return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
+            array(
+                "error" => array(
+                    "message" => $e->getMessage(),
+                    "success" => $e->getCode()
+                ),
+            )
+        );
+    }
+
+});
+
+$app->post('/users/resettoken', function (Request $request, Response $response) {
+
+    $db = new Db();
+    
+    $user_id = $request->getParam("user_id");
+    $authtoken = createToken();
+    try {
+        $db = $db->connect();
+
+        $query = $db->prepare("UPDATE `users` SET `authtoken` = :authtoken  WHERE id = :user_id");
+        $query->execute([':authtoken' => $authtoken, ':user_id' => $user_id]);
+
+        return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+            array(
+                "data" => array(
+                    "message" => "Token Created!",
+                    "success" => true,
+                    "data" => $authenticationToken
+                ),
+            )
+        );
     } catch (PDOException $e) {
         return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
             array(
