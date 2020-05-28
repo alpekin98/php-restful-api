@@ -12,9 +12,7 @@ $app->add(new \Slim\Middleware\JwtAuthentication([
 			// It allows access to "login" without a token
 			"passthrough" => [
                 "/users/login",
-                "/users/register",
-                "/users/resettoken",
-                "/users/test"
+                "/users/register"
 			]
 		])
 	]
