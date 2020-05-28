@@ -1,4 +1,5 @@
 <?php
+use \Firebase\JWT\JWT;
 
 class Authorization
 {
@@ -9,7 +10,7 @@ class Authorization
      * @param    string    $user    Username
      * @return    string    Authorization Valid token.
      */
-    public static function createToken($id, $username) {
+    public static function createToken($id, $email) {
 
         $secret = SECRET;
         $starTimeOfToken = date('Y-m-d H:i:s');
@@ -18,7 +19,7 @@ class Authorization
         $token = array(
             'header' => [ // User Information
                 'id' => $id, // User id
-                'user' => $username, // username
+                'user_email' => $email, // username
             ],
             'payload' => [
                 'iat' => $starTimeOfToken, // Start time of the token
@@ -26,13 +27,13 @@ class Authorization
             ],
         );
         // Encode Authentication Token
-        return Authorization::encode($token, $secret, "HS256");
+        return JWT::encode($token, $secret, "HS256");
     }
 
-    public static function checkToken() {
+    public static function checkToken($token) {
 
         $secret = SECRET;
-        $AuthorizationObject = Authorization::decode($token, $secret, array("HS256")); // Decode Authentication Token
+        $AuthorizationObject = JWT::decode($token, $secret, array("HS256")); // Decode Authentication Token
 
         if (isset($AuthorizationObject->payload)) {
             $now = strtotime(date('Y-m-d H:i:s'));
