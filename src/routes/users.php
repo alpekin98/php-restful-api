@@ -4,7 +4,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 $app->add(new \Slim\Middleware\JwtAuthentication([
 	// The secret key
-	"secret" => SECRET,
+    "secret" => SECRET,
+    "secure" => false,
 	"rules" => [
 		new \Slim\Middleware\JwtAuthentication\RequestPathRule([
 			// Degenerate access to "/users"
