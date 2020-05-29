@@ -18,10 +18,4 @@ $app = new \Slim\App;
 
 require "../src/routes/users.php";
 
-/* 
-** Get Pairs Routes
-*/
-
-require "../src/routes/pairs.php";
-
 $app->run();
