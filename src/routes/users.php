@@ -140,11 +140,6 @@ $app->group("/users", function () use ($app) {
 
     $app->post('/resettoken', function (Request $request, Response $response) {
 
-        echo "<pre>";
-        echo "debugg";
-        echo "</pre>";
-        die();
-
         $db = new Db();
         
         $HTTPToken = str_replace("Bearer ", "", $request->getServerParams()["HTTP_AUTHORIZATION"]);
