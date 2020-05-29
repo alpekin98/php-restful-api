@@ -30,21 +30,6 @@ $app->add(function (Request $request, Response $response, $next) {
 
 $app->group("/users", function () use ($app) {
 
-
-    $app->post('/ping', function (Request $request, Response $response) {
-
-        $HTTPToken = str_replace("Bearer ", "", $request->getServerParams()["HTTP_AUTHORIZATION"]);
-		// Verify the token.
-		$result = Authorization::checkToken($HTTPToken);
-		/** @var string $user - User ID */
-        $user_id = $result->header->id;
-        
-        echo $user_id;
-
-        die();
-
-    });
-
     /*
     ** Endpoint for register user.
     */
