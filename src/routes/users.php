@@ -123,7 +123,7 @@ $app->group("/users", function () use ($app) {
                                     "token" => Authorization::createToken($fetchUserData->id, $fetchUserData->email)                                ),
                             )
                         );
-                     }
+                    }
 
                 }
 
@@ -163,7 +163,7 @@ $app->group("/users", function () use ($app) {
 		$result = Authorization::checkToken($HTTPToken);
 		/** @var string $user - User ID */
 		$user_id = $result->header->id;
-           
+        
         try {
             $authtoken =  bin2hex(openssl_random_pseudo_bytes(16));
             $db = $db->connect();
@@ -176,7 +176,7 @@ $app->group("/users", function () use ($app) {
                     "data" => array(
                         "message" => "Token Created!",
                         "success" => true,
-                        "data" => $authenticationToken
+                        "data" => $authtoken
                     ),
                 )
             );
