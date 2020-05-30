@@ -156,6 +156,14 @@ $app->group("/users", function () use ($app) {
             $query = $db->prepare("UPDATE `users` SET `authtoken` = :authtoken  WHERE id = :user_id");
             $query->execute([':authtoken' => $authtoken, ':user_id' => $user_id]);
 
+            $query = $db->prepare("SELECT authtoken FROM users WHERE id = :user_id");
+            $query->execute([':user_id' => $user_id]);
+            $result = $query->fetch(PDO::FETCH_OBJ);
+            $oldAuthToken = $result["authtoken"];
+
+            $query = $db->prepare("UPDATE `pairs` SET `receiver_token` = :authtoken  WHERE `receiver_token` = :oldAuthToken");
+            $query->execute([':authtoken' => $authtoken, ':oldAuthToken' => $oldAuthToken]);
+
             return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
                 array(
                     "data" => array(
