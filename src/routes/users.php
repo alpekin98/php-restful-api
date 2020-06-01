@@ -50,6 +50,19 @@ $app->group("/users", function () use ($app) {
 
             $db = $db->connect();
 
+            $emailQuery = $db->prepare("SELECT * FROM users WHERE email = ?");
+            $emailQuery->execute([$email]);
+            $emailRowCount = $emailQuery->rowCount();
+
+            $usernameQuery = $db->prepare("SELECT * FROM users WHERE username = ?");
+            $usernameQuery->execute([$username]);
+            $usernameRowCount = $usernameQuery->rowCount();
+
+            if($usernameRowCount > 0 || $usernameRowCount > 0){
+                throw new PDOException();
+                // TODO TODO TODO TODO
+            }
+
             $query = $db->prepare("INSERT INTO users(username,email,password,fullname,authtoken) VALUES(?,?,?,?,?)");
             $query->execute([$username, $email, $hashPassword, $fullname, $authtoken]);
 
@@ -90,7 +103,7 @@ $app->group("/users", function () use ($app) {
 
             $db = $db->connect();
 
-            $query = $db->prepare("SELECT * FROM `users` WHERE email = :email");
+            $query = $db->prepare("SELECT email,username,fullname,id,authtoken,pair_id FROM `users` WHERE email = :email");
             $query->execute([':email' => $email]);
             $rowCount = $query->rowCount();
 
