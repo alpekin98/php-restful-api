@@ -39,7 +39,10 @@ $app->group("/users", function () use ($app) {
         $email = $request->getParam('email');
         $password = $request->getParam('password');
         $fullname = $request->getParam('fullname');
-        $authtoken = bin2hex(openssl_random_pseudo_bytes(16));
+        $authtoken = bin2hex(openssl_random_pseudo_bytes(4));
+
+        $options = array("cost" => 4);
+        $hashPassword = password_hash($password, PASSWORD_BCRYPT, $options);
 
         $db = new Db();
 
@@ -48,7 +51,7 @@ $app->group("/users", function () use ($app) {
             $db = $db->connect();
 
             $query = $db->prepare("INSERT INTO users(username,email,password,fullname,authtoken) VALUES(?,?,?,?,?)");
-            $query->execute([$username, $email, $password, $fullname, $authtoken]);
+            $query->execute([$username, $email, $hashPassword, $fullname, $authtoken]);
 
             return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
                 array(
@@ -92,12 +95,12 @@ $app->group("/users", function () use ($app) {
             $rowCount = $query->rowCount();
 
             if ($rowCount > 0) {
-
+                
                 $fetchUserData = $query->fetch(PDO::FETCH_OBJ);
 
                 if($fetchUserData) {
-
-                    if ($password === $fetchUserData->password) {  
+                    
+                    if (password_verify($password, $fetchUserData->password)) {  
                         
                         return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
                             array(
