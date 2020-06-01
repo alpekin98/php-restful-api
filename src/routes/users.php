@@ -166,7 +166,7 @@ $app->group("/users", function () use ($app) {
 		$user_id = $result->header->id;
         
         try {
-            $authtoken =  bin2hex(openssl_random_pseudo_bytes(16));
+            $authtoken =  bin2hex(openssl_random_pseudo_bytes(4));
             $db = $db->connect();
 
             $query = $db->prepare("UPDATE `users` SET `authtoken` = :authtoken  WHERE id = :user_id");
