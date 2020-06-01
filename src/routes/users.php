@@ -104,7 +104,7 @@ $app->group("/users", function () use ($app) {
                                 "data" => array(
                                     "message" => "Operation completed!",
                                     "success" => true,
-                                    "data" => $fetchUserData,
+                                    "data" =>json_encode($fetchUserData),
                                     "token" => Authorization::createToken($fetchUserData->id, $fetchUserData->email)                                ),
                             )
                         );
@@ -120,7 +120,7 @@ $app->group("/users", function () use ($app) {
                         "data" => array(
                             "message" => "Username and password does not match!!",
                             "success" => false,
-                            "data" => $fetchUserData
+                            "data" => null
                         ),
                     )
                 );
@@ -161,7 +161,7 @@ $app->group("/users", function () use ($app) {
                     "data" => array(
                         "message" => "Token Created!",
                         "success" => true,
-                        "data" => $authtoken
+                        "data" => json_encode($authtoken)
                     ),
                 )
             );
@@ -266,7 +266,7 @@ $app->group("/users", function () use ($app) {
                         "data" => array(
                             "message" => "Operation completed!",
                             "success" => true,
-                            "data" => $fetchUserData
+                            "data" => json_encode($fetchUserData)
                         ),
                     )
                 );
@@ -278,7 +278,7 @@ $app->group("/users", function () use ($app) {
                         "data" => array(
                             "message" => "No pair requests!",
                             "success" => false,
-                            "data" => $fetchUserData
+                            "data" => null
                         ),
                     )
                 );
