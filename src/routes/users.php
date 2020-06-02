@@ -102,35 +102,27 @@ $app->group("/users", function () use ($app) {
         try {
 
             $db = $db->connect();
-
-            $query = $db->prepare("SELECT email,username,fullname,id,authtoken,pair_id FROM `users` WHERE email = :email");
+            $query = $db->prepare("SELECT * FROM `users` WHERE email = :email");
             $query->execute([':email' => $email]);
             $rowCount = $query->rowCount();
 
             if ($rowCount > 0) {
-                
                 $fetchUserData = $query->fetch(PDO::FETCH_OBJ);
-
                 if($fetchUserData) {
-                    
-                    if (password_verify($password, $fetchUserData->password)) {  
-                        
+                    if (password_verify($password,$fetchUserData->password)) {                          
                         return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
                             array(
                                 "data" => array(
                                     "message" => "Operation completed!",
                                     "success" => true,
                                     "data" => $fetchUserData,
-                                    "token" => Authorization::createToken($fetchUserData->id, $fetchUserData->email)                                ),
+                                    "token" => Authorization::createToken($fetchUserData->id, $fetchUserData->email)                                
+                                ),
                             )
                         );
                     }
-
                 }
-
-
             } else {
-                
                 return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
                     array(
                         "data" => array(
@@ -141,7 +133,6 @@ $app->group("/users", function () use ($app) {
                     )
                 );
             }
-
         } catch (PDOException $e) {
             return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
                 array(
@@ -152,7 +143,6 @@ $app->group("/users", function () use ($app) {
                 )
             );
         }
-
     });
 
     $app->post('/resettoken', function (Request $request, Response $response) {
@@ -191,7 +181,6 @@ $app->group("/users", function () use ($app) {
                 )
             );
         }
-
     });
 
     /*
@@ -213,7 +202,6 @@ $app->group("/users", function () use ($app) {
         try {
 
             $db = $db->connect();
-
             $query = $db->prepare("INSERT INTO pairs(sender_id,receiver_token) VALUES(?,?)");
             $query->execute([$senderID, $receiverToken]);
 
@@ -225,7 +213,6 @@ $app->group("/users", function () use ($app) {
                     ),
                 )
             );
-
         } catch (PDOException $e) {
             return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
                 array(
@@ -236,7 +223,6 @@ $app->group("/users", function () use ($app) {
                 )
             );
         }
-
     });
 
     /*
@@ -263,18 +249,14 @@ $app->group("/users", function () use ($app) {
             }
 
             $db = $db->connect();
-
             $query = $db->prepare("SELECT * FROM `pairs` WHERE receiver_token = :authToken AND `status` = 0");
             $query->execute([':authToken' => $authToken]);
             $rowCount = $query->rowCount();
 
             if ($rowCount > 0) {
-
                 $fetchPairData = $query->fetch(PDO::FETCH_OBJ);
-
                 $query = $db->prepare("SELECT * FROM `users` WHERE id = :senderID");
                 $query->execute([':senderID' => $fetchPairData->sender_id]);
-                
                 $fetchUserData = $query->fetch(PDO::FETCH_OBJ);
 
                 return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
@@ -286,9 +268,7 @@ $app->group("/users", function () use ($app) {
                         ),
                     )
                 );
-
             } else {
-                
                 return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
                     array(
                         "data" => array(
@@ -299,7 +279,6 @@ $app->group("/users", function () use ($app) {
                     )
                 );
             }
-
         } catch (PDOException $e) {
             return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
                 array(
@@ -310,7 +289,6 @@ $app->group("/users", function () use ($app) {
                 )
             );
         }
-
     });
 
     /*
@@ -334,20 +312,16 @@ $app->group("/users", function () use ($app) {
         try {
 
             $db = $db->connect();
-
             $query = $db->prepare("UPDATE `pairs` SET `status` = :approve  WHERE sender_id = :sender_id");
             $query->execute([':sender_id' => $sender_id, ':approve' => $approve]);
 
             if($approve == true) {
-
                 $query = $db->prepare("UPDATE `users` SET `pair_id` = :sender_id WHERE id = :my_id");
                 $query->execute([':my_id' => $my_id, ':sender_id' => $sender_id]);
 
                 $query = $db->prepare("UPDATE `users` SET `pair_id` = :my_id WHERE id = :sender_id");
                 $query->execute([':my_id' => $my_id, ':sender_id' => $sender_id]);
-
             }
-
             return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
                 array(
                     "data" => array(
@@ -356,7 +330,6 @@ $app->group("/users", function () use ($app) {
                     ),
                 )
             );
-
         } catch (PDOException $e) {
             return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
                 array(
@@ -367,6 +340,5 @@ $app->group("/users", function () use ($app) {
                 )
             );
         }
-
     });
 });
