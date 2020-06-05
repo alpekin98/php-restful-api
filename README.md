@@ -1,5 +1,4 @@
-# php-restful-api
-Restful api with Slim Framework
+# Restful API With Slim Framework
 
 Create .env file and set credentials. 
 
