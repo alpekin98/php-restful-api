@@ -253,9 +253,9 @@ $app->group("/users", function () use ($app) {
             $query->execute([':authToken' => $authToken]);
             $rowCount = $query->rowCount();
 
-            $query = $db->prepare("SELECT status FROM `pairs` WHERE receiver_token = :authToken");
-            $query->execute([':authToken' => $authToken]);
-            $pairStatus = $query->fetch(PDO::FETCH_OBJ);
+            $query2 = $db->prepare("SELECT status FROM `pairs` WHERE receiver_token = :authToken");
+            $query2->execute([':authToken' => $authToken]);
+            $pairStatus = $query2->fetch(PDO::FETCH_OBJ);
 
             if ($rowCount > 0) {
                 $fetchPairData = $query->fetch(PDO::FETCH_OBJ);
