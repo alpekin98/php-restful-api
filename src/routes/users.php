@@ -292,7 +292,7 @@ $app->group("/users", function () use ($app) {
     });
 
     /*
-    ** Endpoint for update.
+    ** Endpoint for pair update.
     */
 
     $app->post('/pairs/update', function (Request $request, Response $response) {
@@ -341,6 +341,10 @@ $app->group("/users", function () use ($app) {
             );
         }
     });
+
+    /*
+    ** Endpoint for save location.
+    */
 
     $app->post('/savelocation', function (Request $request, Response $response) {
 
