@@ -253,10 +253,6 @@ $app->group("/users", function () use ($app) {
             $query->execute([':authToken' => $authToken]);
             $rowCount = $query->rowCount();
 
-            $query2 = $db->prepare("SELECT status FROM `pairs` WHERE receiver_token = :authToken");
-            $query2->execute([':authToken' => $authToken]);
-            $pairStatus = $query2->fetch(PDO::FETCH_OBJ);
-
             if ($rowCount > 0) {
                 $fetchPairData = $query->fetch(PDO::FETCH_OBJ);
                 $query = $db->prepare("SELECT * FROM `users` WHERE id = :senderID");
@@ -268,8 +264,7 @@ $app->group("/users", function () use ($app) {
                         "data" => array(
                             "message" => "Operation completed!",
                             "success" => true,
-                            "data" => $fetchUserData,
-                            "pairStatus" => $pairStatus
+                            "data" => $fetchUserData
                         ),
                     )
                 );
@@ -400,4 +395,58 @@ $app->group("/users", function () use ($app) {
             );
         }
     });
+
+    $app->post('/checkPair', function (Request $request, Response $response) {
+
+        $HTTPToken = str_replace("Bearer ", "", $request->getServerParams()["HTTP_AUTHORIZATION"]);
+        $result = Authorization::checkToken($HTTPToken);
+        $my_id = $result->header->id;
+
+        $db = new Db();
+
+        try {
+
+            $db = $db->connect();
+            $query = $db->prepare("SELECT * FROM `users` WHERE id = :my_id");
+            $query->execute([':my_id' => $my_id]);
+            $user = $query->fetch(PDO::FETCH_OBJ);
+
+            if($user->pair_id == null) {
+                $message = "You have no pair";
+                return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                    array(
+                        "data" => array(
+                            "message" => $message,
+                            "success" => false
+                        ),
+                    )
+                );
+            } else {
+                $query = $db->prepare("SELECT * FROM `users` WHERE id = :pair_id");
+                $query->execute([':pair_id' => $user->pair_id]);
+                $pair = $query->fetch(PDO::FETCH_OBJ);
+                $message = "Pair found!";
+            }
+
+            return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "data" => array(
+                        "message" => $message,
+                        "success" => true,
+                        "data" => $pair
+                    ),
+                )
+            );
+        } catch (PDOException $e) {
+            return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "error" => array(
+                        "message" => $e->getMessage(),
+                        "success" => $e->getCode()
+                    ),
+                )
+            );
+        }
+    });
+
 });
