@@ -253,6 +253,10 @@ $app->group("/users", function () use ($app) {
             $query->execute([':authToken' => $authToken]);
             $rowCount = $query->rowCount();
 
+            $query = $db->prepare("SELECT status FROM `pairs` WHERE receiver_token = :authToken");
+            $query->execute([':authToken' => $authToken]);
+            $pairStatus = $query->fetch(PDO::FETCH_OBJ);
+
             if ($rowCount > 0) {
                 $fetchPairData = $query->fetch(PDO::FETCH_OBJ);
                 $query = $db->prepare("SELECT * FROM `users` WHERE id = :senderID");
@@ -264,7 +268,8 @@ $app->group("/users", function () use ($app) {
                         "data" => array(
                             "message" => "Operation completed!",
                             "success" => true,
-                            "data" => $fetchUserData
+                            "data" => $fetchUserData,
+                            "pairStatus" => $pairStatus
                         ),
                     )
                 );
