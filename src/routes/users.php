@@ -341,4 +341,54 @@ $app->group("/users", function () use ($app) {
             );
         }
     });
+
+    $app->post('/savelocation', function (Request $request, Response $response) {
+
+        $getXCordinates = $request->getParam('x_cordinate');
+        $getYCordinates = $request->getParam('y_cordinate');
+
+        $HTTPToken = str_replace("Bearer ", "", $request->getServerParams()["HTTP_AUTHORIZATION"]);
+        $result = Authorization::checkToken($HTTPToken);
+        $my_id = $result->header->id;
+
+        $db = new Db();
+
+        try {
+
+            $db = $db->connect();
+            $query = $db->prepare("SELECT * FROM `locations` WHERE user_id = :my_id");
+            $query->execute([':my_id' => $my_id]);
+            $rows = $query->rowCount();
+
+            if($rows > 0) {
+                /* Updating location */
+                $query = $db->prepare("UPDATE `locations` SET `x_cordinate` = :getXCordinates , `y_cordinate` = :getYCordinates  WHERE user_id = :my_id");
+                $query->execute([':getXCordinates' => $getXCordinates, ':getYCordinates' => $getYCordinates, ':my_id' => $my_id]);
+                $message = "Updated location operation completed!";
+            } else {
+                /* Insert new location */
+                $query = $db->prepare("INSERT INTO locations(x_cordinate,y_cordinate,user_id) VALUES(?,?,?)");
+                $query->execute([$getXCordinates, $getYCordinates, $my_id]);
+                $message = "Adding location operation completed!";
+            }
+
+            return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "data" => array(
+                        "message" => $message,
+                        "success" => true
+                    ),
+                )
+            );
+        } catch (PDOException $e) {
+            return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "error" => array(
+                        "message" => $e->getMessage(),
+                        "success" => $e->getCode()
+                    ),
+                )
+            );
+        }
+    });
 });
