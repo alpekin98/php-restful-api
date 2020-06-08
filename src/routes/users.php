@@ -350,6 +350,7 @@ $app->group("/users", function () use ($app) {
 
         $getXCordinates = $request->getParam('x_cordinate');
         $getYCordinates = $request->getParam('y_cordinate');
+        $getActiveStatus = $request->getParam("isActive");
 
         $HTTPToken = str_replace("Bearer ", "", $request->getServerParams()["HTTP_AUTHORIZATION"]);
         $result = Authorization::checkToken($HTTPToken);
@@ -366,8 +367,8 @@ $app->group("/users", function () use ($app) {
 
             if($rows > 0) {
                 /* Updating location */
-                $query = $db->prepare("UPDATE `locations` SET `x_cordinate` = :getXCordinates , `y_cordinate` = :getYCordinates  WHERE user_id = :my_id");
-                $query->execute([':getXCordinates' => $getXCordinates, ':getYCordinates' => $getYCordinates, ':my_id' => $my_id]);
+                $query = $db->prepare("UPDATE `locations` SET `x_cordinate` = :getXCordinates , `y_cordinate` = :getYCordinates , isActive = :getActiveStatus  WHERE user_id = :my_id");
+                $query->execute([':getXCordinates' => $getXCordinates, ':getYCordinates' => $getYCordinates, ':my_id' => $my_id, ':getActiveStatus' => $getActiveStatus]);
                 $message = "Updated location operation completed!";
             } else {
                 /* Insert new location */
@@ -380,7 +381,8 @@ $app->group("/users", function () use ($app) {
                 array(
                     "data" => array(
                         "message" => $message,
-                        "success" => true
+                        "success" => true,
+                        "data" => $getActiveStatus
                     ),
                 )
             );
