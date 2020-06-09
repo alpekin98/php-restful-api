@@ -451,4 +451,82 @@ $app->group("/users", function () use ($app) {
         }
     });
 
+    $app->post('/pairLocation', function (Request $request, Response $response) {
+
+        $HTTPToken = str_replace("Bearer ", "", $request->getServerParams()["HTTP_AUTHORIZATION"]);
+        $result = Authorization::checkToken($HTTPToken);
+        $my_id = $result->header->id;
+
+        $pair_id = $request->getParam('pair_id');
+
+        $db = new Db();
+
+        try {
+
+            $db = $db->connect();
+            $query = $db->prepare("SELECT * FROM `locations` WHERE user_id = :pair_id");
+            $query->execute([':pair_id' => $pair_id]);
+            $isExist = $query->rowCount();
+            
+            if($isExist == 0){
+                $message = "Your pair does not have location information yet.";
+                return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                    array(
+                        "data" => array(
+                            "message" => $message,
+                            "success" => false
+                        ),
+                    )
+                );
+            }
+
+            $user = $query->fetch(PDO::FETCH_OBJ);
+            
+            if($user->isActive == 0) {
+                $message = "You are receiving the old location informations.";
+                return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                    array(
+                        "data" => array(
+                            "message" => $message,
+                            "success" => true,
+                            "latidude" => $user->x_cordinate,
+                            "longitude" => $user->y_cordinate
+                        ),
+                    )
+                );
+            } else if($user->isActive == 1){
+                $message = "You are receiving the current location informations.";
+                return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                    array(
+                        "data" => array(
+                            "message" => $message,
+                            "success" => true,
+                            "latidude" => $user->x_cordinate,
+                            "longitude" => $user->y_cordinate
+                        ),
+                    )
+                );
+            } else {
+                $message = "Service unavailable";
+                return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                    array(
+                        "data" => array(
+                            "message" => $message,
+                            "success" => false
+                        ),
+                    )
+                );
+            }
+        } catch (PDOException $e) {
+            return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "error" => array(
+                        "message" => $e->getMessage(),
+                        "success" => $e->getCode()
+                    ),
+                )
+            );
+        }
+    });
+
 });
