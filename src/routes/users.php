@@ -457,13 +457,17 @@ $app->group("/users", function () use ($app) {
         $result = Authorization::checkToken($HTTPToken);
         $my_id = $result->header->id;
 
-        $pair_id = $request->getParam('pair_id');
-
         $db = new Db();
+        
+        $db = $db->connect();
+        $query = $db->prepare("SELECT pair_id FROM `users` WHERE id = :id");
+        $query->execute([':id' => $my_id]);
+        $userdata = $query->fetch(PDO::FETCH_OBJ);
+        
+        $pair_id = $userdata->pair_id;
 
         try {
 
-            $db = $db->connect();
             $query = $db->prepare("SELECT * FROM `locations` WHERE user_id = :pair_id");
             $query->execute([':pair_id' => $pair_id]);
             $isExist = $query->rowCount();
@@ -489,7 +493,7 @@ $app->group("/users", function () use ($app) {
                         "data" => array(
                             "message" => $message,
                             "success" => true,
-                            "latidude" => $user->x_cordinate,
+                            "latitude" => $user->x_cordinate,
                             "longitude" => $user->y_cordinate
                         ),
                     )
@@ -501,7 +505,7 @@ $app->group("/users", function () use ($app) {
                         "data" => array(
                             "message" => $message,
                             "success" => true,
-                            "latidude" => $user->x_cordinate,
+                            "latitude" => $user->x_cordinate,
                             "longitude" => $user->y_cordinate
                         ),
                     )
