@@ -343,6 +343,44 @@ $app->group("/users", function () use ($app) {
     });
 
     /*
+    ** Endpoint for pair cancel.
+    */
+
+    $app->post('/pairs/cancel', function (Request $request, Response $response) {
+
+        $HTTPToken = str_replace("Bearer ", "", $request->getServerParams()["HTTP_AUTHORIZATION"]);
+        // Verify the token.
+        $result = Authorization::checkToken($HTTPToken);
+        
+        $my_id = $result->header->id;
+        
+        try {
+
+            /* 
+            * Update işlemleri burada olacak!
+            */
+
+            return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "data" => array(
+                        "message" => "Canceled pair!",
+                        "success" => true,
+                    ),
+                )
+            );
+        } catch (PDOException $e) {
+            return $response->withStatus(400)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "error" => array(
+                        "message" => $e->getMessage(),
+                        "success" => $e->getCode()
+                    ),
+                )
+            );
+        }
+    });
+
+    /*
     ** Endpoint for save location.
     */
 
