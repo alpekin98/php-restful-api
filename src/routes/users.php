@@ -354,11 +354,29 @@ $app->group("/users", function () use ($app) {
         
         $my_id = $result->header->id;
         
+        $db = new Db();
+
         try {
 
-            /* 
-            * Update işlemleri burada olacak!
-            */
+            $db = $db->connect();
+
+            $query = $db->prepare("SELECT pair_id,authtoken FROM `users` WHERE id = :id");
+            $query->execute([':id' => $my_id]);
+            $fetchUserData = $query->fetch(PDO::FETCH_OBJ);
+
+            $query = $db->prepare("UPDATE `users` SET `pair_id` = NULL  WHERE id = :id");
+            $query->execute([':id' => $my_id]); 
+
+            $query = $db->prepare("UPDATE `users` SET `pair_id` = NULL  WHERE id = :id");
+            $query->execute([':id' => $fetchUserData->pair_id]);
+
+            $query = $db->prepare("DELETE FROM `pairs` WHERE sender_id = :sender_id");
+            $query->execute([':sender_id' => $my_id]);
+
+            if($query->rowCount() <= 0){
+                $query = $db->prepare("DELETE FROM `pairs` WHERE receiver_token = :receiver_token");
+                $query->execute([':receiver_token' => $fetchUserData->authtoken]);
+            }
 
             return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
                 array(
