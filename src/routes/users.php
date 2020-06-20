@@ -125,8 +125,7 @@ $app->group("/users", function () use ($app) {
                         array(
                             "data" => array(
                                 "message" => "Username and password does not match!!",
-                                "success" => false,
-                                "data" => $fetchUserData
+                                "success" => false
                             ),
                         )
                     );
