@@ -121,6 +121,15 @@ $app->group("/users", function () use ($app) {
                             )
                         );
                     }
+                    return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                        array(
+                            "data" => array(
+                                "message" => "Username and password does not match!!",
+                                "success" => false,
+                                "data" => $fetchUserData
+                            ),
+                        )
+                    );
                 }
             } else {
                 return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
