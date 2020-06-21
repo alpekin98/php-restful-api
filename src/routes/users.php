@@ -207,9 +207,24 @@ $app->group("/users", function () use ($app) {
 
         $db = new Db();
 
+        $db = $db->connect();
+        $query = $db->prepare("SELECT * FROM `pairs` WHERE sender_id = :sender_id AND `status` != -1");
+        $query->execute([':sender_id' => $senderID]);
+        $rowCount = $query->rowCount();
+
+        if($rowCount > 0){
+            return $response->withStatus(200)->withHeader("Content-Type", "application/json")->withJson(
+                array(
+                    "data" => array(
+                        "message" => "You have pending request!",
+                        "success" => false
+                    ),
+                )
+            );
+        }
+
         try {
 
-            $db = $db->connect();
             $query = $db->prepare("INSERT INTO pairs(sender_id,receiver_token) VALUES(?,?)");
             $query->execute([$senderID, $receiverToken]);
 
