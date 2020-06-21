@@ -14,7 +14,7 @@ class Authorization
 
         $secret = SECRET;
         $starTimeOfToken = date('Y-m-d H:i:s');
-        $_2hoursLater = date('Y-m-d H:i:s', mktime(date('H') + 2, date('i'), date('s'), date('m'), date('d'), date('Y')));
+        $_2yearsLater = date('Y-m-d H:i:s', mktime(date('H'), date('i'), date('s'), date('m'), date('d'), date('Y')+2));
 
         $token = array(
             'header' => [ // User Information
@@ -23,7 +23,7 @@ class Authorization
             ],
             'payload' => [
                 'iat' => $starTimeOfToken, // Start time of the token
-                'exp' => $_2hoursLater,
+                'exp' => $_2yearsLater,
             ],
         );
         // Encode Authentication Token
