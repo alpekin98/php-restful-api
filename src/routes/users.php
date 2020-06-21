@@ -338,7 +338,7 @@ $app->group("/users", function () use ($app) {
             $query = $db->prepare("UPDATE `pairs` SET `status` = :approve  WHERE sender_id = :sender_id");
             $query->execute([':sender_id' => $sender_id, ':approve' => $approve]);
 
-            if($approve == true) {
+            if($approve == "1") {
                 $query = $db->prepare("UPDATE `users` SET `pair_id` = :sender_id WHERE id = :my_id");
                 $query->execute([':my_id' => $my_id, ':sender_id' => $sender_id]);
 
